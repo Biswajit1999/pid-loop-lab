@@ -11,6 +11,16 @@
 
 PID Loop Lab is a free, offline-capable browser laboratory for learning and exploring practical proportional–integral–derivative control. It is built around one question: **what is the controller thinking?**
 
+## The instrument is the introduction
+
+![The live PID Loop Lab opening experiment with simulated process response and direct P/I/D controls](public/screenshots/live-home.png)
+
+The opening scene is a running FOPDT simulation, not a decorative demo. Dragging P, I, or D recomputes the real controller response and updates the loop telemetry and term decomposition.
+
+![The PID Loop Lab engineering workstation with plant visualization, synchronized response plot, loop inspector, and live controller controls](public/screenshots/lab-workstation.png)
+
+The laboratory keeps the plant, response, controller and internal signals spatially connected. Focus mode, shared cursors, event jumps and the loop inspector all read the same simulation sample.
+
 The interface exposes setpoint, process value, error, P/I/D terms, unclamped command, bounded output, applied actuator value, saturation, disturbance, noise, and plant state. It uses real state equations and deterministic numerical integration rather than drawing approximate curves.
 
 > Educational and preliminary engineering software. Generated gains, metrics, and code are not a hardware safety case, commissioning procedure, or substitute for validation on the actual plant.
@@ -23,7 +33,9 @@ The interface exposes setpoint, process value, error, P/I/D terms, unclamped com
 - Output/integrator limits, conditional anti-windup, back-calculation, and actuator slew limiting.
 - First-order, FOPDT, second-order, integrating, mass–spring–damper, DC motor, generic thermal, and strictly proper user transfer-function plants.
 - Seeded sensor noise and sample jitter, load disturbance, sensor lag, quantization, and dead time.
-- Synchronized ECharts response, error, PID-term, controller, and actuator plots with zoom, pan, crosshair, legend, reset, and PNG export.
+- Synchronized ECharts response, error, PID-term, controller, and actuator plots with zoom, pan, crosshair, legend, reset, and PNG/SVG export.
+- Live plant visualization, time-linked loop inspector, event timeline, shared plot cursor, and full-screen response focus mode.
+- Essential/advanced/expert controller disclosure, command palette, measured “What changed?” analysis, and lightweight run history.
 - Rise/peak/settling time, overshoot/undershoot, steady-state and maximum error, IAE, ISE, ITAE, RMS error/effort, total controller variation, and saturation percentage.
 - Ziegler–Nichols, Cohen–Coon, CHR, IMC/Lambda, SIMC, Tyreus–Luyben, and simulated Åström–Hägglund relay-feedback workflows.
 - Four-way tuning overlay and metrics table without declaring a universal winner.
@@ -67,6 +79,7 @@ The project validates plant integration, controller terms, filtering, saturation
 - [References](docs/references.md)
 - [Method validation](docs/method-validation.md)
 - [Numerical methods](docs/numerical-methods.md)
+- [Motion and interaction system](docs/motion-system.md)
 - [Release validation](VALIDATION.md)
 
 ## Limitations
@@ -104,8 +117,14 @@ The Next.js application is statically exported and deployed by GitHub Actions. T
 - `Space`: play/pause visual playback
 - `R`: reset the playback cursor
 - `N`: advance one stored simulation sample
+- `F`: open the response plot in focus mode
+- `C`: open tuning comparison
+- `A`: open auto tuning
+- `?`: show the keyboard map
+- `Ctrl/Cmd + K`: open the command palette
+- `Escape`: close focus mode or an overlay
 
-Shortcuts are ignored while focus is inside form fields.
+Simulation shortcuts are ignored while focus is inside form fields; Escape and Ctrl/Cmd + K remain available.
 
 ## Contributing
 

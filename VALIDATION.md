@@ -1,8 +1,8 @@
 # Validation report
 
-Release: 1.0.0  
-Owner: Biswajit Jana  
-Date: 15 September 2026
+Release: 1.1.0
+Owner: Biswajit Jana
+Date: 16 September 2026
 
 ## Quality gates
 
@@ -45,16 +45,16 @@ This validation is software verification against documented equations and refere
 
 | Check | Target |
 |---|---|
-| Desktop | 1440 × 900 and 1280 × 800 |
+| Desktop | 1440 × 900, 1920 × 1080 and 2560 × 1440 |
 | Tablet | 1024 × 768 and 768 × 1024 |
-| Mobile | 375 × 812 |
+| Mobile | 430 × 932 and 390 × 844 |
 | Themes | light and dark |
 | Motion | normal and `prefers-reduced-motion` |
-| Keyboard | tab order, focus visibility, Space/R/N shortcuts |
-| Charts | hover, crosshair, zoom, pan, legend toggle, reset, PNG export |
+| Keyboard | tab order, focus visibility, Space/R/N/F/C/A/?/Escape/Ctrl+K shortcuts |
+| Charts | synchronized hover/crosshair, focus mode, event jumps, zoom, pan, legend toggle, reset, PNG/SVG export |
 | Export | CSV, JSON, share URL, Python example |
 | Guard states | invalid `dt`, invalid transfer function, divergent response |
 
-Manual Chromium QA passed at 1440-class desktop, 768 × 1024 tablet, and 375 × 812 mobile viewports. The inspection included the landing page, responsive main lab, saturation preset, metrics panel, transfer-function rejection, autotuning selection limit and overlay update, PID teaching preset, theme rendering, document-width overflow checks, and post-fix browser console review.
+Manual Chromium QA passed at every viewport listed above with no horizontal document overflow. The inspection included the real-engine hero controls, responsive main lab, live gain recomputation, measured before/after analysis, plant visualization, loop inspector, event timeline, synchronized plots, focus mode, command palette and Escape behavior, saturation preset, metrics panel, transfer-function rejection, autotuning overlay update, PID teaching preset, light/dark rendering, and post-fix browser console review. No console warnings or errors remained.
 
 See [docs/validation.md](docs/validation.md) and [docs/method-validation.md](docs/method-validation.md) for the test map and equation cases.

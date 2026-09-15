@@ -12,5 +12,5 @@
     <text x="490" y="160" fill="#bac5c3" font-size="13" text-anchor="middle" letter-spacing="3">NEGATIVE FEEDBACK</text>
   </g>
   <g transform="translate(1020 340)"><path d="M0 170H190M0 0V170" stroke="#63716c"/><path d="M0 155C32 145 42 56 76 42s35 45 64 20 28-14 50-18" fill="none" stroke="#69c8b2" stroke-width="5"/><path d="M0 118C35 70 70 135 105 75s50 55 85-18" fill="none" stroke="#e39372" stroke-width="2" opacity=".8"/><path d="M0 145C40 122 72 91 110 105s49-28 80-20" fill="none" stroke="#9eb6df" stroke-width="2" opacity=".8"/></g>
-  <text x="70" y="600" fill="#bac5c3" font-family="monospace" font-size="18">BISWAJIT JANA</text><text x="1210" y="600" fill="#69c8b2" font-family="monospace" font-size="18" text-anchor="end">SEE WHAT THE CONTROLLER IS THINKING.</text>
+  <text x="70" y="600" fill="#bac5c3" font-family="monospace" font-size="18">BISWAJIT JANA · 2026</text><text x="1210" y="600" fill="#69c8b2" font-family="monospace" font-size="18" text-anchor="end">SEE WHAT THE CONTROLLER IS THINKING.</text>
 </svg>
