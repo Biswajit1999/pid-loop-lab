@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use PID Loop Lab, please cite this software."
+title: "PID Loop Lab — Interactive PID Tuning & Control-System Simulator"
+type: software
+authors:
+  - family-names: Jana
+    given-names: Biswajit
+repository-code: "https://github.com/Biswajit1999/pid-loop-lab"
+url: "https://biswajit1999.github.io/pid-loop-lab/"
+license: MIT
+version: 1.0.0
+date-released: 2026-09-15
+keywords:
+  - PID controller
+  - PID tuning
+  - control systems
+  - simulation
+  - control engineering
