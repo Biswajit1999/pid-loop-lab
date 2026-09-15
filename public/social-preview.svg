@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-labelledby="title desc">
+  <title id="title">PID Loop Lab</title><desc id="desc">Closed-loop control diagram with process response and P/I/D traces.</desc>
+  <defs><pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="#31403b" stroke-width="1" opacity=".45"/></pattern></defs>
+  <rect width="1280" height="640" fill="#111615"/><rect width="1280" height="640" fill="url(#grid)"/>
+  <path d="M70 58H1210" stroke="#69c8b2" stroke-width="3"/><text x="70" y="116" fill="#69c8b2" font-family="monospace" font-size="18" letter-spacing="4">OPEN CONTROL LAB · 2026</text>
+  <text x="64" y="232" fill="#eef2ed" font-family="Arial Narrow,Arial,sans-serif" font-size="112" font-weight="800" letter-spacing="-7">PID LOOP LAB</text>
+  <text x="70" y="282" fill="#bac5c3" font-family="monospace" font-size="25">Interactive PID Tuning &amp; Control-System Simulator</text>
+  <g transform="translate(70 346)" font-family="monospace">
+    <g fill="#171d1b" stroke="#63716c"><rect width="142" height="82"/><rect x="168" width="142" height="82"/><rect x="336" width="142" height="82" fill="#167a68" stroke="#69c8b2"/><rect x="504" width="142" height="82"/><rect x="672" width="142" height="82"/><rect x="840" width="142" height="82"/></g>
+    <g fill="#eef2ed" font-size="17" text-anchor="middle"><text x="71" y="48">SETPOINT</text><text x="239" y="48">ERROR</text><text x="407" y="48">P + I + D</text><text x="575" y="48">ACTUATOR</text><text x="743" y="48">PLANT</text><text x="911" y="48">SENSOR</text></g>
+    <g stroke="#bac5c3" stroke-width="2"><path d="M142 41h26m142 0h26m142 0h26m142 0h26m142 0h26"/><path d="m162 35 6 6-6 6m168-12 6 6-6 6m168-12 6 6-6 6m168-12 6 6-6 6m168-12 6 6-6 6"/><path d="M911 82v58H71V82" fill="none"/><path d="m65 91 6-9 6 9"/></g>
+    <text x="490" y="160" fill="#bac5c3" font-size="13" text-anchor="middle" letter-spacing="3">NEGATIVE FEEDBACK</text>
+  </g>
+  <g transform="translate(1020 340)"><path d="M0 170H190M0 0V170" stroke="#63716c"/><path d="M0 155C32 145 42 56 76 42s35 45 64 20 28-14 50-18" fill="none" stroke="#69c8b2" stroke-width="5"/><path d="M0 118C35 70 70 135 105 75s50 55 85-18" fill="none" stroke="#e39372" stroke-width="2" opacity=".8"/><path d="M0 145C40 122 72 91 110 105s49-28 80-20" fill="none" stroke="#9eb6df" stroke-width="2" opacity=".8"/></g>
+  <text x="70" y="600" fill="#bac5c3" font-family="monospace" font-size="18">BISWAJIT JANA</text><text x="1210" y="600" fill="#69c8b2" font-family="monospace" font-size="18" text-anchor="end">SEE WHAT THE CONTROLLER IS THINKING.</text>
+</svg>
