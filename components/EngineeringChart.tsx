@@ -5,6 +5,7 @@ import { LineChart } from "echarts/charts";
 import { DataZoomComponent, GridComponent, LegendComponent, MarkLineComponent, TitleComponent, ToolboxComponent, TooltipComponent } from "echarts/components";
 import { SVGRenderer } from "echarts/renderers";
 import { useEffect, useRef } from "react";
+import { ArrowsOut } from "@phosphor-icons/react";
 import type { SimulationSample } from "@/lib/types";
 
 echarts.use([LineChart, DataZoomComponent, GridComponent, LegendComponent, MarkLineComponent, TitleComponent, ToolboxComponent, TooltipComponent, SVGRenderer]);
@@ -13,12 +14,14 @@ type ChartMode = "response" | "terms" | "actuator" | "error";
 
 const palette = ["#1f8a70", "#b85c38", "#536d9c", "#7a5c99", "#b8860b"];
 
-export function EngineeringChart({ samples, mode, title, height = 320 }: { samples: SimulationSample[]; mode: ChartMode; title: string; height?: number }) {
+export function EngineeringChart({ samples, mode, title, height = 320, cursorTime, onCursor, onFocus }: { samples: SimulationSample[]; mode: ChartMode; title: string; height?: number; cursorTime?: number; onCursor?: (time: number) => void; onFocus?: () => void }) {
   const node = useRef<HTMLDivElement>(null);
   const chart = useRef<echarts.ECharts | null>(null);
   useEffect(() => {
     if (!node.current) return;
     chart.current ??= echarts.init(node.current, undefined, { renderer: "svg" });
+    chart.current.group = "pid-loop-lab";
+    echarts.connect("pid-loop-lab");
     const definitions = mode === "response"
       ? [["Setpoint", "setpoint"], ["Process value", "pv"], ["Measured", "measured"]]
       : mode === "terms"
@@ -47,13 +50,22 @@ export function EngineeringChart({ samples, mode, title, height = 320 }: { sampl
         sampling: "lttb",
         data: samples.map((sample) => [sample.t, sample[key as keyof SimulationSample] as number]),
         lineStyle: { width: index === 1 && mode === "response" ? 2.8 : 1.7, type: index === 0 && mode === "response" ? "dashed" : "solid" },
-        markLine: mode === "actuator" && name === "Actuator" ? { silent: true, symbol: "none", data: samples.some((s) => s.saturated) ? [{ xAxis: samples.find((s) => s.saturated)?.t, name: "saturation begins" }] : [] } : undefined,
+        markLine: index === 0 ? { silent: true, symbol: "none", label: { color: text, fontSize: 10 }, lineStyle: { color: grid, type: "dashed" }, data: [
+          ...(cursorTime === undefined ? [] : [{ xAxis: cursorTime, name: "INSPECT" }]),
+          ...(mode === "actuator" && samples.some((s) => s.saturated) ? [{ xAxis: samples.find((s) => s.saturated)?.t, name: "SATURATION" }] : []),
+        ] } : undefined,
       })),
     }, true);
+    chart.current.off("updateAxisPointer");
+    chart.current.on("updateAxisPointer", (event: unknown) => {
+      const payload = event as { axesInfo?: { value?: number }[] };
+      const value = payload.axesInfo?.[0]?.value;
+      if (typeof value === "number") onCursor?.(value);
+    });
     const resize = new ResizeObserver(() => chart.current?.resize());
     resize.observe(node.current);
     return () => resize.disconnect();
-  }, [samples, mode, title]);
+  }, [samples, mode, title, cursorTime, onCursor]);
   useEffect(() => () => { chart.current?.dispose(); chart.current = null; }, []);
   const exportSvg = () => {
     if (!chart.current) return;
@@ -66,6 +78,7 @@ export function EngineeringChart({ samples, mode, title, height = 320 }: { sampl
     <div className="chart-shell">
       <div ref={node} style={{ height }} role="img" aria-label={`${title}. Interactive time-series chart with zoom, pan, hover values, and export controls.`} />
       <button className="chart-svg-export" onClick={exportSvg} aria-label={`Export ${title} as SVG`}>SVG</button>
+      {onFocus && <button className="chart-focus" onClick={onFocus} aria-label={`Open ${title} in focus mode`}><ArrowsOut aria-hidden="true" />Focus</button>}
       <p className="sr-only">{samples.length ? `${title}: ${samples.length} samples from ${samples[0].t.toFixed(2)} to ${samples.at(-1)!.t.toFixed(2)} seconds.` : `${title}: no data.`}</p>
     </div>
   );

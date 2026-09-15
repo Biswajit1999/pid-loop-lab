@@ -29,10 +29,22 @@ export const useLabStore = create<LabState>((set, get) => ({
   effects: { ...defaultEffects },
   simulation: { ...defaultSimulation },
   result: initialResult,
-  patchPid: (patch) => set((state) => ({ pid: { ...state.pid, ...patch } })),
-  patchPlant: (patch) => set((state) => ({ plant: { ...state.plant, ...patch } })),
-  patchEffects: (patch) => set((state) => ({ effects: { ...state.effects, ...patch } })),
-  patchSimulation: (patch) => set((state) => ({ simulation: { ...state.simulation, ...patch } })),
+  patchPid: (patch) => set((state) => {
+    const pid = { ...state.pid, ...patch };
+    return { pid, result: simulate(pid, state.plant, state.effects, state.simulation) };
+  }),
+  patchPlant: (patch) => set((state) => {
+    const plant = { ...state.plant, ...patch };
+    return { plant, result: simulate(state.pid, plant, state.effects, state.simulation) };
+  }),
+  patchEffects: (patch) => set((state) => {
+    const effects = { ...state.effects, ...patch };
+    return { effects, result: simulate(state.pid, state.plant, effects, state.simulation) };
+  }),
+  patchSimulation: (patch) => set((state) => {
+    const simulation = { ...state.simulation, ...patch };
+    return { simulation, result: simulate(state.pid, state.plant, state.effects, simulation) };
+  }),
   run: () => {
     const { pid, plant, effects, simulation } = get();
     set({ result: simulate(pid, plant, effects, simulation) });

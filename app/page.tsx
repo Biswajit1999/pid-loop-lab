@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Flask, Gauge, GraduationCap, Pulse, ShieldCheck, SlidersHorizontal } from "@phosphor-icons/react";
+import { ArrowRight, Gauge, Pulse, ShieldCheck, SlidersHorizontal } from "@phosphor-icons/react";
 import { motion, useReducedMotion } from "motion/react";
-import { BlockDiagram } from "@/components/BlockDiagram";
+import { HeroExperiment } from "@/components/HeroExperiment";
 import { Equation } from "@/components/Equation";
 
 const cards = [
@@ -16,20 +16,7 @@ export default function Home() {
   const reduced = useReducedMotion();
   return (
     <main id="main">
-      <section className="hero section-pad">
-        <div className="eyebrow"><span>OPEN CONTROL LAB</span><span>v1.0 · DETERMINISTIC</span></div>
-        <motion.div initial={reduced ? false : { opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55 }}>
-          <h1>PID <span>LOOP</span> LAB</h1>
-          <p className="hero-subtitle">Interactive PID Tuning &amp; Control-System Simulator</p>
-          <p className="hero-copy">Explore proportional, integral and derivative control from first principles to practical loop tuning. See the complete feedback loop—not just three sliders.</p>
-          <div className="hero-actions">
-            <Link className="button primary" href="/lab"><Flask aria-hidden="true" />Launch simulator<ArrowRight aria-hidden="true" /></Link>
-            <Link className="button" href="/learn"><GraduationCap aria-hidden="true" />Learn PID</Link>
-            <Link className="button ghost" href="/autotune"><Gauge aria-hidden="true" />Auto tune</Link>
-          </div>
-        </motion.div>
-        <div className="hero-diagram"><BlockDiagram /></div>
-      </section>
+      <HeroExperiment />
 
       <section className="manifesto section-pad split-section">
         <div>
