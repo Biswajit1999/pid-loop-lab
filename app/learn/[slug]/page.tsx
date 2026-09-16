@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight, CheckCircle } from "@phosphor-icons/react/dist/ssr";
 import { Equation } from "@/components/Equation";
+import { LearnVisual } from "@/components/LearnVisual";
 import { getLearnTopic, learnTopics } from "@/lib/learn-topics";
 
 export const dynamicParams = false;
@@ -36,7 +37,7 @@ export default async function LearnTopicPage({ params }: { params: Promise<{ slu
     </header>
     <article className="topic-body section-pad">
       <p className="topic-introduction">{topic.introduction}</p>
-      {topic.sections.map((section, index) => <section key={section.heading}><span>{String(index + 1).padStart(2, "0")}</span><div><h2>{section.heading}</h2><p>{section.body}</p></div></section>)}
+      {topic.sections.map((section, index) => <section key={section.heading}><span>{String(index + 1).padStart(2, "0")}</span><div><h2>{section.heading}</h2><p>{section.body}</p><LearnVisual topic={topic.slug} index={index} /></div></section>)}
       <aside className="topic-takeaways"><p className="section-kicker">KEEP THESE THREE IDEAS</p>{topic.takeaways.map((takeaway) => <div key={takeaway}><CheckCircle weight="fill" aria-hidden="true" /><span>{takeaway}</span></div>)}</aside>
       <div className="topic-actions"><Link className="button primary" href={topic.mission ? `/lab?mission=${topic.mission}` : "/autotune"}>Open the live experiment<ArrowRight aria-hidden="true" /></Link><Link className="button" href="/missions">Browse PID missions</Link></div>
     </article>

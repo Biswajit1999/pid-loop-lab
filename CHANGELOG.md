@@ -2,6 +2,14 @@
 
 All notable changes are documented here. The format follows Keep a Changelog and semantic versioning.
 
+## 1.3.0 — 2026-09-16
+
+- Added 24 original, topic-specific SVG teaching plots across all eight PID learning guides.
+- Added visual explanations for response shape, proportional offset, saturation, windup, derivative noise, filtering, dead time, model fitting, and robustness.
+- Added eight chart previews to the learning index so readers can see each lesson before opening it.
+- Added descriptive SVG titles, summaries, patterned series, direct legends, responsive sizing, and dark-theme support.
+- Kept every diagram deterministic and repository-native so the visual curriculum remains fast, scalable, and open-source friendly.
+
 ## 1.2.0 — 2026-09-16
 
 - Added five scored PID missions with reproducible starting configurations and live success criteria.

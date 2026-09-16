@@ -45,6 +45,7 @@ The interface exposes setpoint, process value, error, P/I/D terms, unclamped com
 - Four-way tuning overlay and metrics table without declaring a universal winner.
 - PID term presets, time-constant explorer, second-order pole map, generic actuator/electrical view, CSV response import, CSV/JSON export, shareable URL state, and implementation-example code export.
 - Eight indexable learning guides, route-specific metadata, structured data, sitemap, robots policy, and installable web-app metadata.
+- Thirty-two original SVG learning visuals: eight guide previews and 24 annotated response plots covering P/I/D behavior, windup, filtering, delay, model fitting, and robust tuning.
 - Light/dark themes, reduced-motion support, visible focus, keyboard controls, graph-first mobile layout, and text summaries for plots.
 
 ## Governing controller
