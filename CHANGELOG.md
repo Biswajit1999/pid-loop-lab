@@ -1,5 +1,18 @@
 # Changelog
 
+All notable changes are documented here. The format follows Keep a Changelog and semantic versioning.
+
+## 1.2.0 — 2026-09-16
+
+- Added five scored PID missions with reproducible starting configurations and live success criteria.
+- Added deterministic “Explain This Curve” diagnostics tied to overshoot, offset, saturation, noise, derivative filtering, and control effort.
+- Added a persistent browser-local experiment notebook, shareable PNG result cards, and clearer reproducible links.
+- Added graph-first mobile quick tuning and compact mission progress at small breakpoints.
+- Added on-demand accessible data tables for every engineering chart.
+- Added eight static learning guides with individual metadata and live experiment links.
+- Added sitemap, robots policy, WebApplication structured data, social metadata, icon, and web-app manifest.
+- Added a public roadmap, code of conduct, security policy, pull-request template, structured issue forms, and plant-contribution guide.
+
 ## 1.1.0 — 2026-09-16
 
 - Replaced the conventional opening with a continuously running, real-engine PID experiment and direct P/I/D gain controls.
@@ -7,8 +20,6 @@
 - Added synchronized plot cursors, event jumps, response focus mode, command palette and expanded keyboard workflow.
 - Added essential/advanced/expert control disclosure, fine adjustment/reset behavior, measured before/after analysis and run history.
 - Completed responsive, accessibility, motion, visual and browser-console audits across desktop, tablet and mobile viewports.
-
-All notable changes are documented here. The format follows Keep a Changelog and semantic versioning.
 
 ## [1.0.0] — 2026-09-15
 

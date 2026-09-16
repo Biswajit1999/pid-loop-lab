@@ -1,0 +1,29 @@
+name: New plant model
+description: Propose a documented dynamic system for the laboratory.
+title: "[Plant]: "
+labels: ["plant model"]
+body:
+  - type: input
+    id: name
+    attributes:
+      label: Plant name
+    validations:
+      required: true
+  - type: textarea
+    id: equations
+    attributes:
+      label: Governing equations and units
+    validations:
+      required: true
+  - type: textarea
+    id: reference
+    attributes:
+      label: Primary reference
+    validations:
+      required: true
+  - type: textarea
+    id: lesson
+    attributes:
+      label: What control lesson does this plant enable?
+    validations:
+      required: true

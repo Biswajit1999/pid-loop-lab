@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ArrowsClockwise, Copy, DownloadSimple, FileCsv, Keyboard, MagnifyingGlass, Pause, Play, SkipForward, UploadSimple, Warning, X } from "@phosphor-icons/react";
+import { ArrowsClockwise, CheckCircle, Copy, DownloadSimple, FileCsv, FloppyDisk, Keyboard, Lightbulb, MagnifyingGlass, Pause, Play, ShareNetwork, SkipForward, Target, Trash, UploadSimple, Warning, X } from "@phosphor-icons/react";
 import { AnimatePresence, motion } from "motion/react";
 import { EngineeringChart } from "./EngineeringChart";
 import { PlantVisual } from "./PlantVisual";
@@ -10,7 +10,22 @@ import { calculateMetrics } from "@/lib/metrics";
 import { decodeConfiguration, downloadText, encodeConfiguration, samplesToCsv } from "@/lib/export";
 import { parseCsv } from "@/lib/csv";
 import { defaultPID } from "@/lib/pid";
+import { evaluateMission, getMission } from "@/lib/missions";
+import { explainResponse } from "@/lib/explain";
+import { downloadShareCard } from "@/lib/share-card";
 import type { PIDConfig, PlantConfig, SimulationSample } from "@/lib/types";
+
+type NotebookEntry = {
+  id: number;
+  label: string;
+  savedAt: string;
+  pid: PIDConfig;
+  plant: PlantConfig;
+  effects: ReturnType<typeof useLabStore.getState>["effects"];
+  simulation: ReturnType<typeof useLabStore.getState>["simulation"];
+  overshoot: number | null;
+  settling: number | null;
+};
 
 function NumericControl({ label, value, min, max, step, onChange, help, log = false, defaultValue }: { label: string; value: number; min: number; max: number; step: number; onChange: (value: number) => void; help?: string; log?: boolean; defaultValue?: number }) {
   const safeValue = Number.isFinite(value) ? value : min;
@@ -82,18 +97,37 @@ export function LabWorkspace() {
   const [focusMode, setFocusMode] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const [missionId, setMissionId] = useState<string | null>(null);
+  const [notebook, setNotebook] = useState<NotebookEntry[]>([]);
+  const [toast, setToast] = useState("");
   const [changeSummary, setChangeSummary] = useState<{ parameter: string; before: number; after: number; riseBefore: number | null; riseAfter: number | null; overBefore: number | null; overAfter: number | null; effortBefore: number | null; effortAfter: number | null } | null>(null);
   const [history, setHistory] = useState<{ id: number; label: string; kp: number; ki: number; kd: number; result: ReturnType<typeof calculateMetrics> }[]>([]);
   const metrics = useMemo(() => calculateMetrics(store.result.samples), [store.result.samples]);
+  const explanation = useMemo(() => explainResponse(store.result, metrics, store.pid, store.effects), [store.result, metrics, store.pid, store.effects]);
+  const mission = useMemo(() => getMission(missionId), [missionId]);
+  const missionResult = useMemo(() => mission ? evaluateMission(mission, metrics) : null, [mission, metrics]);
   const sample = store.result.samples[Math.max(0, Math.min(cursor, store.result.samples.length - 1))] ?? ({ t: 0, setpoint: 0, pv: 0, measured: 0, error: 0, p: 0, i: 0, d: 0, unclamped: 0, output: 0, actuator: 0, disturbance: 0, noise: 0, saturated: false, state: [], voltage: 0, current: 0, power: 0 } satisfies SimulationSample);
 
   useEffect(() => {
-    const encoded = new URLSearchParams(window.location.search).get("config");
+    const parameters = new URLSearchParams(window.location.search);
+    const encoded = parameters.get("config");
+    const selectedMission = getMission(parameters.get("mission"));
+    const missionTimer = window.setTimeout(() => setMissionId(selectedMission?.id ?? null), 0);
     if (encoded) {
       try { store.load(decodeConfiguration(encoded)); } catch { /* Ignore malformed shared state and retain validated defaults. */ }
-    }
+    } else if (selectedMission) store.load(selectedMission.configuration);
+    return () => window.clearTimeout(missionTimer);
     // URL hydration intentionally runs once.
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    let notebookTimer = 0;
+    try {
+      const stored = localStorage.getItem("pid-loop-notebook");
+      if (stored) notebookTimer = window.setTimeout(() => setNotebook(JSON.parse(stored) as NotebookEntry[]), 0);
+    } catch { /* A malformed local notebook should never block the laboratory. */ }
+    return () => window.clearTimeout(notebookTimer);
   }, []);
 
   const selectTime = useCallback((time: number) => {
@@ -164,6 +198,25 @@ export function LabWorkspace() {
     setCopied(true);
     window.setTimeout(() => setCopied(false), 2500);
   };
+  const saveNotebook = () => {
+    const entry: NotebookEntry = {
+      id: Date.now(),
+      label: mission?.shortTitle ?? `Experiment ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`,
+      savedAt: new Date().toISOString(),
+      pid: { ...store.pid }, plant: { ...store.plant }, effects: { ...store.effects }, simulation: { ...store.simulation },
+      overshoot: metrics.overshootPercent, settling: metrics.settlingTime,
+    };
+    const next = [entry, ...notebook].slice(0, 12);
+    setNotebook(next);
+    localStorage.setItem("pid-loop-notebook", JSON.stringify(next));
+    setToast("Run saved to this browser.");
+    window.setTimeout(() => setToast(""), 2800);
+  };
+  const removeNotebookEntry = (id: number) => {
+    const next = notebook.filter((entry) => entry.id !== id);
+    setNotebook(next);
+    localStorage.setItem("pid-loop-notebook", JSON.stringify(next));
+  };
   const loadCsv = async (file?: File) => {
     if (!file) return;
     try {
@@ -192,6 +245,15 @@ export function LabWorkspace() {
         <button className="command-trigger" onClick={() => setPaletteOpen(true)}><MagnifyingGlass aria-hidden="true" />Commands <kbd>Ctrl K</kbd></button>
         <span className={`run-status ${store.result.status}`}>{displayState} · {sample.t.toFixed(2)} s</span>
       </div>
+
+      {mission && missionResult && <section className={`mission-bar ${missionResult.complete ? "complete" : ""}`} aria-label={`Mission ${mission.title}`}>
+        <div className="mission-identity"><Target weight="fill" aria-hidden="true" /><span>MISSION {mission.number}</span><strong>{mission.title}</strong></div>
+        <div className="mission-progress" aria-live="polite"><span>{missionResult.score}</span><small>SCORE</small></div>
+        <div className="mission-criteria">{missionResult.criteria.map((criterion) => <span className={criterion.passed ? "passed" : ""} key={criterion.label}>{criterion.passed ? <CheckCircle weight="fill" aria-hidden="true" /> : <i aria-hidden="true" />}{criterion.label}<b>{criterion.value === null ? "—" : Number(criterion.value.toPrecision(3))}{criterion.unit}</b></span>)}</div>
+        <p>{missionResult.complete ? "Mission complete. Save or share this run." : mission.lesson}</p>
+      </section>}
+
+      {toast && <div className="lab-toast" role="status"><CheckCircle weight="fill" aria-hidden="true" />{toast}</div>}
 
       <AnimatePresence>
         {(paletteOpen || shortcutsOpen) && <motion.div className="palette-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onMouseDown={() => { setPaletteOpen(false); setShortcutsOpen(false); }}>
@@ -237,6 +299,7 @@ export function LabWorkspace() {
             </dl></div>
           </div>
           <div className="primary-chart"><EngineeringChart samples={store.result.samples} mode="response" title="SETPOINT + PROCESS RESPONSE" height={390} cursorTime={sample.t} onCursor={selectTime} onFocus={() => setFocusMode(true)} /></div>
+          <section className="mobile-quick-tune" aria-label="Quick PID tuning controls"><div><span>QUICK TUNE</span><strong>Adjust one gain, then rerun.</strong></div><div className="quick-gains">{([['kp', 'P'], ['ki', 'I'], ['kd', 'D']] as const).map(([key, label]) => <label key={key}><span>{label}</span><input type="number" min="0" step="0.01" value={Number(store.pid[key].toPrecision(5))} onChange={(event) => patchPidLive(key, Number(event.target.value), `K${label.toLowerCase()}`)} /></label>)}</div><button className="button primary" onClick={() => run(mission ? mission.shortTitle : "Quick tune")}><Play aria-hidden="true" />Run</button></section>
           <div className="timeline"><span>t = {sample.t.toFixed(2)} s</span><input aria-label="Simulation timeline" type="range" min={0} max={Math.max(0, store.result.samples.length - 1)} value={Math.max(0, cursor)} onChange={(event) => { setRunning(false); setCursor(Number(event.target.value)); }} /><span>{store.simulation.duration.toFixed(1)} s</span></div>
           <div className="event-timeline" aria-label="Simulation events"><button onClick={() => selectTime(0)}><i className="setpoint-event" />SETPOINT <b>0.00 s</b></button>{disturbanceIndex >= 0 && <button onClick={() => setCursor(disturbanceIndex)}><i className="disturbance-event" />DISTURBANCE <b>{store.effects.disturbanceTime.toFixed(2)} s</b></button>}{saturationIndex >= 0 && <button onClick={() => setCursor(saturationIndex)}><i className="saturation-event" />SATURATION <b>{store.result.samples[saturationIndex].t.toFixed(2)} s</b></button>}</div>
           <div className="experiment-row" aria-label="Controlled experiment shortcuts">
@@ -264,6 +327,8 @@ export function LabWorkspace() {
               <details open><summary>Limits + 2-DOF weights</summary><NumericControl label="Output minimum" value={store.pid.outputMin} min={-100} max={0} step={.1} onChange={(outputMin) => patchPidLive("outputMin", outputMin, "Output min")} /><NumericControl label="Output maximum" value={store.pid.outputMax} min={0} max={100} step={.1} onChange={(outputMax) => patchPidLive("outputMax", outputMax, "Output max")} /><NumericControl label="P weight β" value={store.pid.beta} min={0} max={1.5} step={.01} onChange={(beta) => patchPidLive("beta", beta, "β")} /><NumericControl label="D weight γ" value={store.pid.gamma} min={0} max={1} step={.01} onChange={(gamma) => patchPidLive("gamma", gamma, "γ")} /></details></motion.div>}
           </section>
           <section><p className="panel-kicker">04 / LIVE SIGNALS</p><Telemetry sample={sample} /></section>
+          <section className={`explain-panel ${explanation.status}`}><p className="panel-kicker">05 / EXPLAIN THIS CURVE</p><div className="explain-heading"><Lightbulb weight="fill" aria-hidden="true" /><h2>{explanation.headline}</h2></div><p>{explanation.summary}</p><dl>{explanation.evidence.map((item) => <div key={item.label}><dt>{item.label}</dt><dd>{item.detail}</dd></div>)}</dl><strong className="next-action">NEXT TEST</strong><p>{explanation.nextAction}</p></section>
+          <section className="notebook-panel"><p className="panel-kicker">06 / LAB NOTEBOOK</p><div className="notebook-heading"><h2>Saved runs</h2><button onClick={saveNotebook}><FloppyDisk aria-hidden="true" />Save current</button></div>{notebook.length ? <div className="notebook-list">{notebook.slice(0, 5).map((entry) => <div key={entry.id}><button className="notebook-load" onClick={() => { store.load(entry); setCursor(0); setRunning(false); }}><strong>{entry.label}</strong><span>K {entry.pid.kp.toFixed(2)} / {entry.pid.ki.toFixed(2)} / {entry.pid.kd.toFixed(2)}</span><small>OS {fmt(entry.overshoot, "%")} · TS {fmt(entry.settling, " s")}</small></button><button className="notebook-delete" onClick={() => removeNotebookEntry(entry.id)} aria-label={`Delete saved run ${entry.label}`}><Trash aria-hidden="true" /></button></div>)}</div> : <p className="notebook-empty">Save a promising run to compare or restore it later. Data stays in this browser.</p>}</section>
           {(changeSummary || history.length > 0) && <section className="change-history"><p className="panel-kicker">05 / EXPERIMENT MEMORY</p>{changeSummary && <div className="change-panel"><span>WHAT CHANGED?</span><h3>{changeSummary.parameter} <b>{changeSummary.before.toFixed(3)} → {changeSummary.after.toFixed(3)}</b></h3><dl><div><dt>Rise time</dt><dd>{fmt(changeSummary.riseBefore, " s")} → {fmt(changeSummary.riseAfter, " s")}</dd></div><div><dt>Overshoot</dt><dd>{fmt(changeSummary.overBefore, "%")} → {fmt(changeSummary.overAfter, "%")}</dd></div><div><dt>RMS effort</dt><dd>{fmt(changeSummary.effortBefore)} → {fmt(changeSummary.effortAfter)}</dd></div></dl><p>Measured from the actual before/after simulations.</p></div>}{history.length > 0 && <div className="run-history"><span>PARAMETER HISTORY</span>{history.map((item, index) => <button key={item.id} onClick={() => { store.patchPid({ kp: item.kp, ki: item.ki, kd: item.kd }); useLabStore.getState().run(); }}><small>RUN {String(history.length - index).padStart(2, "0")}</small><b>{item.label}</b><i>{item.kp.toFixed(2)} / {item.ki.toFixed(2)} / {item.kd.toFixed(2)}</i></button>)}</div>}</section>}
         </aside>
       </div>
@@ -271,7 +336,7 @@ export function LabWorkspace() {
       <section className="analysis-dock">
         <div className="dock-tabs" role="tablist" aria-label="Engineering analysis views">
           {(["plots", "metrics", "advanced", "import"] as const).map((name) => <button key={name} role="tab" aria-selected={tab === name} onClick={() => setTab(name)}>{name === "import" ? "Data import" : name}</button>)}
-          <div className="dock-actions"><button onClick={() => downloadText("pid-loop-lab.csv", samplesToCsv(store.result.samples), "text/csv")}><FileCsv aria-hidden="true" />CSV</button><button onClick={() => downloadText("pid-loop-lab.json", JSON.stringify({ configuration: { pid: store.pid, plant: store.plant, effects: store.effects, simulation: store.simulation }, result: store.result }, null, 2), "application/json")}><DownloadSimple aria-hidden="true" />JSON</button><button onClick={copyConfig}><Copy aria-hidden="true" />{copied ? "Copied" : "Copy configuration"}</button></div>
+          <div className="dock-actions"><button onClick={saveNotebook}><FloppyDisk aria-hidden="true" />Save run</button><button onClick={() => downloadShareCard(store.result.samples, metrics, store.pid, mission?.title)}><ShareNetwork aria-hidden="true" />Share card</button><button onClick={() => downloadText("pid-loop-lab.csv", samplesToCsv(store.result.samples), "text/csv")}><FileCsv aria-hidden="true" />CSV</button><button onClick={() => downloadText("pid-loop-lab.json", JSON.stringify({ configuration: { pid: store.pid, plant: store.plant, effects: store.effects, simulation: store.simulation }, result: store.result }, null, 2), "application/json")}><DownloadSimple aria-hidden="true" />JSON</button><button onClick={copyConfig}><Copy aria-hidden="true" />{copied ? "Copied" : "Copy link"}</button></div>
         </div>
         {tab === "plots" && <div className="secondary-grid"><EngineeringChart samples={store.result.samples} mode="terms" title="P / I / D CONTRIBUTIONS" cursorTime={sample.t} onCursor={selectTime} /><EngineeringChart samples={store.result.samples} mode="actuator" title="COMMAND + ACTUATOR" cursorTime={sample.t} onCursor={selectTime} /><EngineeringChart samples={store.result.samples} mode="error" title="CONTROL ERROR" cursorTime={sample.t} onCursor={selectTime} /></div>}
         {tab === "metrics" && <div className="metrics-grid">{([

@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions and tuning discussion
+    url: https://github.com/Biswajit1999/pid-loop-lab/discussions
+    about: Ask for help, share experiments, or discuss an early idea.

@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Gauge, Pulse, ShieldCheck, SlidersHorizontal } from "@phosphor-icons/react";
+import { ArrowRight, BookOpenText, Gauge, Pulse, ShieldCheck, SlidersHorizontal, Target } from "@phosphor-icons/react";
 import { motion, useReducedMotion } from "motion/react";
 import { HeroExperiment } from "@/components/HeroExperiment";
 import { Equation } from "@/components/Equation";
+import { missions } from "@/lib/missions";
+import { learnTopics } from "@/lib/learn-topics";
 
 const cards = [
   { term: "P", name: "PROPORTIONAL", line: "React to the error now.", note: "Scales the present weighted error. More gain is not universally better; stability depends on the plant.", color: "p" },
@@ -17,6 +19,17 @@ export default function Home() {
   return (
     <main id="main">
       <HeroExperiment />
+
+      <section className="home-missions section-pad">
+        <div className="section-heading-row">
+          <div><p className="section-kicker">PID MISSIONS</p><h2>Don’t just move sliders. Solve a loop.</h2></div>
+          <p>Start with a failure mode, meet measurable constraints, and get an explanation tied to the signals that caused the result.</p>
+        </div>
+        <div className="home-mission-grid">
+          {missions.slice(0, 3).map((mission) => <Link href={`/lab?mission=${mission.id}`} className={`home-mission ${mission.accent}`} key={mission.id}><span>{mission.number} · {mission.difficulty}</span><Target aria-hidden="true" /><strong>{mission.title}</strong><p>{mission.description}</p><b>Start mission <ArrowRight aria-hidden="true" /></b></Link>)}
+        </div>
+        <Link className="text-link" href="/missions">See all five missions <ArrowRight aria-hidden="true" /></Link>
+      </section>
 
       <section className="manifesto section-pad split-section">
         <div>
@@ -64,6 +77,11 @@ export default function Home() {
           <div><h2>Build a loop. Stress it. Explain it.</h2><p>Start from a stable FOPDT process, then add noise, delay, saturation, and slow sampling one effect at a time.</p></div>
           <Link className="button primary" href="/lab">Open the lab<ArrowRight aria-hidden="true" /></Link>
         </div>
+      </section>
+
+      <section className="home-learning section-pad">
+        <div className="section-heading-row"><div><p className="section-kicker">CONTROL FIELD NOTES</p><h2>Search it. Understand it. Try it.</h2></div><p>Focused guides turn common PID questions into indexable explanations and reproducible experiments.</p></div>
+        <div className="home-learning-links">{learnTopics.slice(0, 4).map((topic) => <Link href={`/learn/${topic.slug}`} key={topic.slug}><BookOpenText aria-hidden="true" /><span><small>{topic.eyebrow}</small><strong>{topic.title}</strong></span><ArrowRight aria-hidden="true" /></Link>)}</div>
       </section>
     </main>
   );

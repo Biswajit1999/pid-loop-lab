@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 
 const links = [
   ["/lab", "Simulator"],
+  ["/missions", "Missions"],
   ["/autotune", "Auto tune"],
   ["/learn", "Learn PID"],
 ];
@@ -35,7 +36,7 @@ export function Header() {
       </Link>
       <nav aria-label="Primary navigation">
         {links.map(([href, label]) => (
-          <Link key={href} className={pathname === href ? "nav-link active" : "nav-link"} href={href}>{label}</Link>
+          <Link key={href} className={pathname === href || (href === "/learn" && pathname.startsWith("/learn/")) ? "nav-link active" : "nav-link"} href={href}>{label}</Link>
         ))}
       </nav>
       <button className="icon-button" onClick={toggle} aria-label={`Switch to ${dark ? "light" : "dark"} theme`}>

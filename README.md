@@ -5,7 +5,7 @@
 
 **Interactive PID Tuning & Control-System Simulator**
 
-[Live demo](https://biswajit1999.github.io/pid-loop-lab/) · [Open the lab](https://biswajit1999.github.io/pid-loop-lab/lab/) · [Tuning methods](docs/tuning-methods.md) · [Validation](VALIDATION.md)
+[Live demo](https://biswajit1999.github.io/pid-loop-lab/) · [Open the lab](https://biswajit1999.github.io/pid-loop-lab/lab/) · [PID missions](https://biswajit1999.github.io/pid-loop-lab/missions/) · [Learn PID](https://biswajit1999.github.io/pid-loop-lab/learn/) · [Validation](VALIDATION.md)
 
 </div>
 
@@ -27,20 +27,25 @@ The interface exposes setpoint, process value, error, P/I/D terms, unclamped com
 
 ## Highlights
 
+- Five scored PID missions covering stability, load rejection, windup, measurement noise, and dead time.
+- Deterministic “Explain This Curve” analysis grounded in measured response and internal controller signals.
+- A browser-local lab notebook, restorable saved runs, reproducible experiment links, and shareable PNG result cards.
+- Graph-first mobile quick tuning with direct P/I/D entry before advanced plant settings.
 - Parallel-form discrete PID/PIDF with typed and slider gain entry.
 - Independent plant integration step, controller sample period, and visual playback rate.
 - Derivative on measurement or weighted error, first-order derivative filtering, β/γ setpoint weights.
 - Output/integrator limits, conditional anti-windup, back-calculation, and actuator slew limiting.
 - First-order, FOPDT, second-order, integrating, mass–spring–damper, DC motor, generic thermal, and strictly proper user transfer-function plants.
 - Seeded sensor noise and sample jitter, load disturbance, sensor lag, quantization, and dead time.
-- Synchronized ECharts response, error, PID-term, controller, and actuator plots with zoom, pan, crosshair, legend, reset, and PNG/SVG export.
+- Synchronized ECharts response, error, PID-term, controller, and actuator plots with zoom, pan, crosshair, legend, reset, PNG/SVG export, and on-demand accessible data tables.
 - Live plant visualization, time-linked loop inspector, event timeline, shared plot cursor, and full-screen response focus mode.
 - Essential/advanced/expert controller disclosure, command palette, measured “What changed?” analysis, and lightweight run history.
 - Rise/peak/settling time, overshoot/undershoot, steady-state and maximum error, IAE, ISE, ITAE, RMS error/effort, total controller variation, and saturation percentage.
 - Ziegler–Nichols, Cohen–Coon, CHR, IMC/Lambda, SIMC, Tyreus–Luyben, and simulated Åström–Hägglund relay-feedback workflows.
 - Four-way tuning overlay and metrics table without declaring a universal winner.
 - PID term presets, time-constant explorer, second-order pole map, generic actuator/electrical view, CSV response import, CSV/JSON export, shareable URL state, and implementation-example code export.
-- Light/dark themes, reduced-motion support, visible focus, keyboard controls, mobile stacking, and text summaries for plots.
+- Eight indexable learning guides, route-specific metadata, structured data, sitemap, robots policy, and installable web-app metadata.
+- Light/dark themes, reduced-motion support, visible focus, keyboard controls, graph-first mobile layout, and text summaries for plots.
 
 ## Governing controller
 
@@ -128,7 +133,7 @@ Simulation shortcuts are ignored while focus is inside form fields; Escape and C
 
 ## Contributing
 
-Issues and focused pull requests are welcome. Scientific changes must include sources, controller form and units, applicability boundaries, and tests. Read [CONTRIBUTING.md](CONTRIBUTING.md).
+Issues and focused pull requests are welcome. Scientific changes must include sources, controller form and units, applicability boundaries, and tests. Read [CONTRIBUTING.md](CONTRIBUTING.md), the [roadmap](ROADMAP.md), and the short guide to [adding a plant model](docs/adding-a-plant.md).
 
 ## Citation
 

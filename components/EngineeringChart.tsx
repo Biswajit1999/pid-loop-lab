@@ -4,8 +4,8 @@ import * as echarts from "echarts/core";
 import { LineChart } from "echarts/charts";
 import { DataZoomComponent, GridComponent, LegendComponent, MarkLineComponent, TitleComponent, ToolboxComponent, TooltipComponent } from "echarts/components";
 import { SVGRenderer } from "echarts/renderers";
-import { useEffect, useRef } from "react";
-import { ArrowsOut } from "@phosphor-icons/react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ArrowsOut, Table } from "@phosphor-icons/react";
 import type { SimulationSample } from "@/lib/types";
 
 echarts.use([LineChart, DataZoomComponent, GridComponent, LegendComponent, MarkLineComponent, TitleComponent, ToolboxComponent, TooltipComponent, SVGRenderer]);
@@ -14,21 +14,24 @@ type ChartMode = "response" | "terms" | "actuator" | "error";
 
 const palette = ["#1f8a70", "#b85c38", "#536d9c", "#7a5c99", "#b8860b"];
 
+const definitionsForMode = (mode: ChartMode) => mode === "response"
+  ? [["Setpoint", "setpoint"], ["Process value", "pv"], ["Measured", "measured"]]
+  : mode === "terms"
+    ? [["P term", "p"], ["I term", "i"], ["D term", "d"]]
+    : mode === "actuator"
+      ? [["Unclamped", "unclamped"], ["Controller output", "output"], ["Actuator", "actuator"]]
+      : [["Error", "error"]];
+
 export function EngineeringChart({ samples, mode, title, height = 320, cursorTime, onCursor, onFocus }: { samples: SimulationSample[]; mode: ChartMode; title: string; height?: number; cursorTime?: number; onCursor?: (time: number) => void; onFocus?: () => void }) {
   const node = useRef<HTMLDivElement>(null);
   const chart = useRef<echarts.ECharts | null>(null);
+  const [tableOpen, setTableOpen] = useState(false);
+  const definitions = useMemo(() => definitionsForMode(mode), [mode]);
   useEffect(() => {
     if (!node.current) return;
     chart.current ??= echarts.init(node.current, undefined, { renderer: "svg" });
     chart.current.group = "pid-loop-lab";
     echarts.connect("pid-loop-lab");
-    const definitions = mode === "response"
-      ? [["Setpoint", "setpoint"], ["Process value", "pv"], ["Measured", "measured"]]
-      : mode === "terms"
-        ? [["P term", "p"], ["I term", "i"], ["D term", "d"]]
-        : mode === "actuator"
-          ? [["Unclamped", "unclamped"], ["Controller output", "output"], ["Actuator", "actuator"]]
-          : [["Error", "error"]];
     const isDark = document.documentElement.dataset.theme === "dark";
     const text = isDark ? "#bac5c3" : "#53605d";
     const grid = isDark ? "rgba(255,255,255,.08)" : "rgba(21,32,29,.1)";
@@ -65,7 +68,7 @@ export function EngineeringChart({ samples, mode, title, height = 320, cursorTim
     const resize = new ResizeObserver(() => chart.current?.resize());
     resize.observe(node.current);
     return () => resize.disconnect();
-  }, [samples, mode, title, cursorTime, onCursor]);
+  }, [samples, mode, title, cursorTime, onCursor, definitions]);
   useEffect(() => () => { chart.current?.dispose(); chart.current = null; }, []);
   const exportSvg = () => {
     if (!chart.current) return;
@@ -79,6 +82,8 @@ export function EngineeringChart({ samples, mode, title, height = 320, cursorTim
       <div ref={node} style={{ height }} role="img" aria-label={`${title}. Interactive time-series chart with zoom, pan, hover values, and export controls.`} />
       <button className="chart-svg-export" onClick={exportSvg} aria-label={`Export ${title} as SVG`}>SVG</button>
       {onFocus && <button className="chart-focus" onClick={onFocus} aria-label={`Open ${title} in focus mode`}><ArrowsOut aria-hidden="true" />Focus</button>}
+      <button className="chart-table-toggle" aria-expanded={tableOpen} onClick={() => setTableOpen((open) => !open)}><Table aria-hidden="true" />{tableOpen ? "Hide data" : "Data table"}</button>
+      {tableOpen && <div className="chart-data-wrap"><table className="chart-data-table"><caption>{title}. All {samples.length} simulation samples.</caption><thead><tr><th scope="col">Time / s</th>{definitions.map(([name]) => <th scope="col" key={name}>{name}</th>)}</tr></thead><tbody>{samples.map((sample, index) => <tr key={`${sample.t}-${index}`}><th scope="row">{sample.t.toFixed(3)}</th>{definitions.map(([name, key]) => <td key={name}>{Number(sample[key as keyof SimulationSample]).toPrecision(5)}</td>)}</tr>)}</tbody></table></div>}
       <p className="sr-only">{samples.length ? `${title}: ${samples.length} samples from ${samples[0].t.toFixed(2)} to ${samples.at(-1)!.t.toFixed(2)} seconds.` : `${title}: no data.`}</p>
     </div>
   );
